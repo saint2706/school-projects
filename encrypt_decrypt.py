@@ -2,10 +2,16 @@
 
 # The key for the substitution cipher
 CIPHER_KEY = {
-    'a': '§', 'b': '/', 'c': '?', 'd': '¥', 'e': ':', 'f': ';', 'g': '|',
-    'h': 'ƒ', 'i': '>', 'j': '<', 'k': 'œ', 'l': '^', 'm': 'Ç', 'n': 'Š',
-    'o': 'þ', 'p': '›', 'q': '®', 'r': '©', 's': '¬', 't': 'Ø', 'u': '•',
-    'v': '~', 'w': '`', 'x': '±', 'y': 'µ', 'z': 'æ'
+    'a': 'd', 'b': 'e', 'c': 'f', 'd': 'g', 'e': 'h', 'f': 'i', 'g': 'j', 'h': 'k', 'i': 'l', 'j': 'm',
+    'k': 'n', 'l': 'o', 'm': 'p', 'n': 'q', 'o': 'r', 'p': 's', 'q': 't', 'r': 'u', 's': 'v', 't': 'w',
+    'u': 'x', 'v': 'y', 'w': 'z', 'x': 'a', 'y': 'b', 'z': 'c', ' ': '^',
+    'A': 'D', 'B': 'E', 'C': 'F', 'D': 'G', 'E': 'H', 'F': 'I', 'G': 'J', 'H': 'K', 'I': 'L', 'J': 'M',
+    'K': 'N', 'L': 'O', 'M': 'P', 'N': 'Q', 'O': 'R', 'P': 'S', 'Q': 'T', 'R': 'U', 'S': 'V', 'T': 'W',
+    'U': 'X', 'V': 'Y', 'W': 'Z', 'X': 'A', 'Y': 'B', 'Z': 'C',
+    '1': '0', '2': '9', '3': '8', '4': '7', '5': '6', '6': '5', '7': '4', '8': '3', '9': '2', '0': '1',
+    ',': '<', '.': '>', '/': '?', '"': "'", ';': ':', '}': ']', '{': '[', '+': '=', '_': '-',
+    ')': '!', '(': '@', '*': '#', '&': '$', '~': '%', '%': '~', '$': '&', '#': '*', '@': '(',
+    '!': ')', '<': "'", '>': '.', '?': '/', "'": '"', ':': ';', ']': '}', '[': '{', '=': '+', '-': '_'
 }
 
 def encrypt(message):
@@ -19,11 +25,11 @@ def encrypt(message):
         str: The encrypted message.
     """
     encrypted_message = ""
-    for char in message.lower():
+    for char in message:
         if char in CIPHER_KEY:
             encrypted_message += CIPHER_KEY[char]
         else:
-            encrypted_message += char # Keep non-alphabetic characters as they are
+            encrypted_message += char
     return encrypted_message
 
 def decrypt(message):
@@ -37,6 +43,7 @@ def decrypt(message):
         str: The decrypted message.
     """
     decrypted_message = ""
+    # Create a reverse mapping of the cipher key for efficient decryption
     reversed_cipher_key = {v: k for k, v in CIPHER_KEY.items()}
 
     for char in message:
@@ -51,7 +58,7 @@ def main():
     Main function to run the encrypt/decrypt tool.
     """
     while True:
-        choice = input("Do you want to encrypt or decrypt a message? (encrypt/decrypt/quit): ").lower()
+        choice = input("Type 'encrypt' to encrypt a message, 'decrypt' to decrypt a message, or 'quit' to exit: ").lower()
 
         if choice == 'quit':
             break
