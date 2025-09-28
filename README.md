@@ -39,6 +39,24 @@ For example, to run the Blackjack game:
 python blackjack24.py
 ```
 
+## Testing
+
+This project uses `pytest` for testing. To run the tests, first install the development dependencies:
+
+```bash
+pip install pytest
+```
+
+Then, run the test suite from the root of the repository:
+
+```bash
+PYTHONPATH=. pytest
+```
+
+## Continuous Integration
+
+This repository uses GitHub Actions to automatically run tests on every push and pull request. This ensures that all changes are validated and that the codebase remains stable.
+
 ## Projects
 
 | Project Name                      | Original Author(s) | New Filename                            | Description                                                               |

@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-selfcheck.json
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Other
+.DS_Store
+*.log
+*.pot
+*.pytx
+*.swp
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.settings/
+*.classpath
+*.project
+.DS_Store
+*.orig

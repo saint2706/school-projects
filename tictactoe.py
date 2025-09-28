@@ -1,155 +1,168 @@
-import random
 import os
+import random
 import time
+from typing import List, Literal, Optional
+
+Player = Literal["X", "O"]
+GameState = Literal["RUNNING", "WIN", "DRAW"]
 
 class TicTacToe:
     """
-    Represents a game of Tic-Tac-Toe.
+    Represents a game of Tic-Tac-Toe, encapsulating the game logic.
     """
-    def __init__(self):
-        self.board = [' ' for _ in range(10)]
-        self.player = 1
-        self.game_state = "RUNNING"
-        self.mark = 'X'
 
-    def draw_board(self):
-        """Draws the game board."""
-        clear_screen()
-        print(" %c | %c | %c " % (self.board[1], self.board[2], self.board[3]))
-        print("___|___|___")
-        print(" %c | %c | %c " % (self.board[4], self.board[5], self.board[6]))
-        print("___|___|___")
-        print(" %c | %c | %c " % (self.board[7], self.board[8], self.board[9]))
-        print("   |   |   ")
+    def __init__(self) -> None:
+        """Initializes the game board and state."""
+        self.board: List[Optional[Player]] = [None] * 9
+        self.current_player: Player = "X"
+        self.game_state: GameState = "RUNNING"
 
-    def check_position(self, x):
-        """Checks if a position is empty."""
-        return self.board[x] == ' '
+    def make_move(self, position: int) -> bool:
+        """
+        Makes a move on the board if the position is valid and available.
 
-    def check_win(self):
-        """Checks if a player has won."""
-        # Horizontal winning condition
-        if (self.board[1] == self.board[2] and self.board[2] == self.board[3] and self.board[1] != ' '):
+        Args:
+            position (int): The position to mark (0-8).
+
+        Returns:
+            bool: True if the move was successful, False otherwise.
+        """
+        if not (0 <= position < 9 and self.board[position] is None):
+            return False
+
+        self.board[position] = self.current_player
+        self.update_game_state()
+        if self.game_state == "RUNNING":
+            self.switch_player()
+        return True
+
+    def switch_player(self) -> None:
+        """Switches the current player from X to O, or vice versa."""
+        self.current_player = "O" if self.current_player == "X" else "X"
+
+    def update_game_state(self) -> None:
+        """
+        Checks the board for a win or draw and updates the game state.
+        """
+        if self._check_win():
             self.game_state = "WIN"
-        elif (self.board[4] == self.board[5] and self.board[5] == self.board[6] and self.board[4] != ' '):
-            self.game_state = "WIN"
-        elif (self.board[7] == self.board[8] and self.board[8] == self.board[9] and self.board[7] != ' '):
-            self.game_state = "WIN"
-        # Vertical Winning Condition
-        elif (self.board[1] == self.board[4] and self.board[4] == self.board[7] and self.board[1] != ' '):
-            self.game_state = "WIN"
-        elif (self.board[2] == self.board[5] and self.board[5] == self.board[8] and self.board[2] != ' '):
-            self.game_state = "WIN"
-        elif (self.board[3] == self.board[6] and self.board[6] == self.board[9] and self.board[3] != ' '):
-            self.game_state = "WIN"
-        # Diagonal Winning Condition
-        elif (self.board[1] == self.board[5] and self.board[5] == self.board[9] and self.board[5] != ' '):
-            self.game_state = "WIN"
-        elif (self.board[3] == self.board[5] and self.board[5] == self.board[7] and self.board[5] != ' '):
-            self.game_state = "WIN"
-        # Match Tie Condition
-        elif all(self.board[i] != ' ' for i in range(1, 10)):
+        elif all(cell is not None for cell in self.board):
             self.game_state = "DRAW"
         else:
             self.game_state = "RUNNING"
 
-    def play_pvp(self):
-        """Player vs Player game mode."""
-        while self.game_state == "RUNNING":
-            self.draw_board()
-            if self.player % 2 != 0:
-                print("Player 1's chance")
-                self.mark = 'X'
-            else:
-                print("Player 2's chance")
-                self.mark = 'O'
+    def _check_win(self) -> bool:
+        """
+        Checks if the current player has won.
 
+        Returns:
+            bool: True if the current player has won, False otherwise.
+        """
+        win_conditions = [
+            (0, 1, 2), (3, 4, 5), (6, 7, 8),  # Horizontal
+            (0, 3, 6), (1, 4, 7), (2, 5, 8),  # Vertical
+            (0, 4, 8), (2, 4, 6)             # Diagonal
+        ]
+        for condition in win_conditions:
+            if all(self.board[i] == self.current_player for i in condition):
+                return True
+        return False
+
+    def get_valid_moves(self) -> List[int]:
+        """
+        Gets a list of all available moves.
+
+        Returns:
+            List[int]: A list of integers representing the available positions.
+        """
+        return [i for i, cell in enumerate(self.board) if cell is None]
+
+class TicTacToeConsole:
+    """
+    Handles the console interface for the Tic-Tac-Toe game.
+    """
+
+    def __init__(self) -> None:
+        """Initializes the console game."""
+        self.game = TicTacToe()
+
+    def draw_board(self) -> None:
+        """Draws the current game board to the console."""
+        self.clear_screen()
+        board = [cell if cell is not None else ' ' for cell in self.game.board]
+        print(f" {board[0]} | {board[1]} | {board[2]} ")
+        print("---|---|---")
+        print(f" {board[3]} | {board[4]} | {board[5]} ")
+        print("---|---|---")
+        print(f" {board[6]} | {board[7]} | {board[8]} ")
+
+    def get_player_move(self) -> int:
+        """
+        Prompts the current player for their move.
+
+        Returns:
+            int: The position the player chose.
+        """
+        while True:
             try:
-                choice = int(input("Enter the position between [1-9] where you want to mark: "))
-                if choice < 1 or choice > 9:
-                    print("Invalid choice. Please enter a number between 1 and 9.")
-                    time.sleep(1)
-                    continue
+                choice = int(input(f"Player {self.game.current_player}, enter your move (1-9): "))
+                if 1 <= choice <= 9 and self.game.board[choice - 1] is None:
+                    return choice - 1
+                else:
+                    print("Invalid move. Please choose an empty cell from 1 to 9.")
             except ValueError:
                 print("Invalid input. Please enter a number.")
-                time.sleep(1)
-                continue
 
-            if self.check_position(choice):
-                self.board[choice] = self.mark
-                self.player += 1
-                self.check_win()
+    def get_computer_move(self) -> int:
+        """
+        Determines the computer's move.
+
+        Returns:
+            int: The position the computer chose.
+        """
+        print(f"Computer ({self.game.current_player}) is thinking...")
+        time.sleep(1)
+        return random.choice(self.game.get_valid_moves())
+
+    def play_pvp(self) -> None:
+        """Handles the player vs. player game loop."""
+        self.game = TicTacToe()
+        while self.game.game_state == "RUNNING":
+            self.draw_board()
+            move = self.get_player_move()
+            self.game.make_move(move)
 
         self.draw_board()
-        if self.game_state == "DRAW":
-            print("Game Draw")
-        elif self.game_state == "WIN":
-            self.player -= 1
-            if self.player % 2 != 0:
-                print("Player 1 Won")
-            else:
-                print("Player 2 Won")
+        self.display_result()
 
-    def play_pvc(self):
-        """Player vs Computer game mode."""
-        player_mark, computer_mark = 'X', 'O'
-
-        while self.game_state == "RUNNING":
+    def play_pvc(self) -> None:
+        """Handles the player vs. computer game loop."""
+        self.game = TicTacToe()
+        while self.game.game_state == "RUNNING":
             self.draw_board()
-            print("Player's chance")
-
-            # Player's move
-            try:
-                choice = int(input("Enter the position between [1-9] where you want to mark: "))
-                if choice < 1 or choice > 9:
-                    print("Invalid choice. Please enter a number between 1 and 9.")
-                    time.sleep(1)
-                    continue
-                if not self.check_position(choice):
-                    print("Position already taken. Try again.")
-                    time.sleep(1)
-                    continue
-            except ValueError:
-                print("Invalid input. Please enter a number.")
-                time.sleep(1)
-                continue
-
-            self.board[choice] = player_mark
-            self.check_win()
-            if self.game_state != "RUNNING":
-                break
-
-            # Computer's move
-            self.draw_board()
-            print("Computer's chance")
-            time.sleep(1)
-
-            # Simple AI: choose a random empty spot
-            while True:
-                comp_choice = random.randint(1, 9)
-                if self.check_position(comp_choice):
-                    self.board[comp_choice] = computer_mark
-                    break
-
-            self.check_win()
+            move = self.get_player_move() if self.game.current_player == "X" else self.get_computer_move()
+            self.game.make_move(move)
 
         self.draw_board()
-        if self.game_state == "DRAW":
-            print("Game Draw")
-        elif self.game_state == "WIN":
-            if self.mark == player_mark:
-                print("Player Won")
-            else:
-                print("Computer Won")
+        self.display_result()
 
-def clear_screen():
-    """Clears the console screen."""
-    os.system('cls' if os.name == 'nt' else 'clear')
+    def display_result(self) -> None:
+        """Displays the final result of the game."""
+        if self.game.game_state == "WIN":
+            print(f"Player {self.game.current_player} wins!")
+        elif self.game.game_state == "DRAW":
+            print("It's a draw!")
 
-def main():
+    @staticmethod
+    def clear_screen() -> None:
+        """Clears the console screen."""
+        os.system('cls' if os.name == 'nt' else 'clear')
+
+def main() -> None:
     """Main function to run the Tic-Tac-Toe game."""
+    console = TicTacToeConsole()
     while True:
-        clear_screen()
+        console.clear_screen()
         print("--- Tic-Tac-Toe ---")
         print("1. Player vs Player")
         print("2. Player vs Computer")
@@ -158,11 +171,9 @@ def main():
         choice = input("Enter your choice: ")
 
         if choice == '1':
-            game = TicTacToe()
-            game.play_pvp()
+            console.play_pvp()
         elif choice == '2':
-            game = TicTacToe()
-            game.play_pvc()
+            console.play_pvc()
         elif choice == '3':
             break
         else:
